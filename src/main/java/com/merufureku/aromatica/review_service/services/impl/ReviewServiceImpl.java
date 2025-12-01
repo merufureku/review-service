@@ -6,10 +6,7 @@ import com.merufureku.aromatica.review_service.dao.repository.ReviewsRepository;
 import com.merufureku.aromatica.review_service.dao.repository.UsersRepository;
 import com.merufureku.aromatica.review_service.dto.params.BaseParam;
 import com.merufureku.aromatica.review_service.dto.params.PostReviewParam;
-import com.merufureku.aromatica.review_service.dto.responses.BaseResponse;
-import com.merufureku.aromatica.review_service.dto.responses.PostReviewResponse;
-import com.merufureku.aromatica.review_service.dto.responses.ReviewsResponse;
-import com.merufureku.aromatica.review_service.dto.responses.UpdateReviewResponse;
+import com.merufureku.aromatica.review_service.dto.responses.*;
 import com.merufureku.aromatica.review_service.exceptions.ServiceException;
 import com.merufureku.aromatica.review_service.helper.ReviewHelper;
 import com.merufureku.aromatica.review_service.helper.SpecificationHelper;
@@ -56,7 +53,7 @@ public class ReviewServiceImpl implements IReviewService {
         }
 
         var reviewsPage = reviewsRepository.findAll(
-                specificationHelper.buildReviewsSpecification(fragranceId, ratings),
+                specificationHelper.buildReviewsSpecification(null, fragranceId, ratings),
                 pageable
         );
 
@@ -77,6 +74,42 @@ public class ReviewServiceImpl implements IReviewService {
                 reviewsPage.isLast());
 
         return new BaseResponse<>(HttpStatus.OK.value(), "Get Reviews Success",
+                response);
+    }
+
+    @Override
+    public BaseResponse<MyReviewsResponse> getMyReviews(Integer userId, Long fragranceId, List<Integer> ratings, Pageable pageable, BaseParam baseParam) {
+
+        logger.info("Fetching reviews for user ID: {} and fragrance ID: {}", userId, fragranceId);
+
+        if (!usersRepository.existsById(userId)){
+            throw new ServiceException(NO_USER_FOUND);
+        }
+
+        if (fragranceId != null && !fragrancesRepository.existsById(fragranceId)){
+            throw new ServiceException(FRAGRANCE_NOT_FOUND);
+        }
+
+        var reviewsPage = reviewsRepository.findAll(
+                specificationHelper.buildReviewsSpecification(userId, fragranceId, ratings),
+                pageable
+        );
+
+        logger.info("Found {} reviews for user ID: {}", reviewsPage.getTotalElements(), userId);
+
+        var reviewDetails = reviewsPage.getContent().stream()
+                .map(MyReviewsResponse.ReviewDetail::new)
+                .toList();
+
+        var response = new MyReviewsResponse(
+                reviewDetails,
+                reviewsPage.getNumber(),
+                reviewsPage.getSize(),
+                reviewsPage.getTotalElements(),
+                reviewsPage.getTotalPages(),
+                reviewsPage.isLast());
+
+        return new BaseResponse<>(HttpStatus.OK.value(), "Get My Reviews Success",
                 response);
     }
 
@@ -136,5 +169,26 @@ public class ReviewServiceImpl implements IReviewService {
         return new BaseResponse<>(HttpStatus.OK.value(), "Update Review Success",
                 new UpdateReviewResponse(updatedReview.getId(), updatedReview.getFragranceId(),
                         updatedReview.getRating(), updatedReview.getComment(), updatedReview.getUpdatedAt()));
+    }
+
+    @Override
+    public void deleteReview(Integer userId, Long reviewID, Long fragranceId, BaseParam baseParam) {
+
+        logger.info("User ID: {} deleting review ID: {} for fragrance ID: {}", userId, reviewID, fragranceId);
+
+        if (!usersRepository.existsById(userId)){
+            throw new ServiceException(NO_USER_FOUND);
+        }
+
+        if (!fragrancesRepository.existsById(fragranceId)){
+            throw new ServiceException(FRAGRANCE_NOT_FOUND);
+        }
+
+        var review = reviewsRepository.findByIdAndUserIdAndFragranceId(reviewID, userId, fragranceId)
+                .orElseThrow(() -> new ServiceException(REVIEW_NOT_FOUND));
+
+        reviewsRepository.delete(review);
+
+        logger.info("Review ID: {} deleted successfully", reviewID);
     }
 }
