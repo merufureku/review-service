@@ -9,7 +9,14 @@ public class ReviewSpecification {
 
     public static Specification<Reviews> byPerfumeId(Long perfumeId) {
         return (root, query, cb) ->
+                perfumeId == null ? null :
                 cb.equal(root.get("fragranceId"), perfumeId);
+    }
+
+    public static Specification<Reviews> byUserId(Integer userId) {
+        return (root, query, cb) ->
+                userId == null ? null :
+                        cb.equal(root.get("userId"), userId);
     }
 
     public static Specification<Reviews> withRatings(List<Integer> ratings) {
