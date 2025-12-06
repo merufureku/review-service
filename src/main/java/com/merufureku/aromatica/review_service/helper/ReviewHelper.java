@@ -7,8 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @Component
 public class ReviewHelper {
@@ -16,20 +14,22 @@ public class ReviewHelper {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     public Reviews updateReview(Reviews existingReview, PostReviewParam param) {
-        setIfNotNull(param::comment, existingReview::setComment);
-        setIfNotNull(param::rating, existingReview::setRating);
-        existingReview.setUpdatedAt(LocalDate.now());
+        String newComment = param.comment() != null ? param.comment() : existingReview.getComment();
+        Integer newRating = param.rating();
 
-        logger.info("Review has been updated: {}", existingReview);
+        Reviews updated = Reviews.builder()
+                .id(existingReview.getId())
+                .fragranceId(existingReview.getFragranceId())
+                .userId(existingReview.getUserId())
+                .rating(newRating)
+                .comment(newComment)
+                .createdAt(existingReview.getCreatedAt())
+                .updatedAt(LocalDate.now())
+                .user(existingReview.getUser())
+                .build();
 
-        return existingReview;
+        logger.info("Review has been updated: {}", updated);
+
+        return updated;
     }
-
-    private static <T> void setIfNotNull(Supplier<T> source, Consumer<T> target) {
-        T value = source.get();
-        if (value != null) {
-            target.accept(value);
-        }
-    }
-
 }
