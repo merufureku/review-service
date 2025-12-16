@@ -2,6 +2,7 @@ package com.merufureku.aromatica.review_service.helper;
 
 import com.merufureku.aromatica.review_service.dao.repository.TokenRepository;
 import com.merufureku.aromatica.review_service.exceptions.ServiceException;
+import com.merufureku.aromatica.review_service.utilities.TokenUtility;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -16,9 +17,11 @@ public class TokenHelper {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TokenRepository tokenRepository;
+    private final TokenUtility tokenUtility;
 
-    public TokenHelper(TokenRepository tokenRepository) {
+    public TokenHelper(TokenRepository tokenRepository, TokenUtility tokenUtility) {
         this.tokenRepository = tokenRepository;
+        this.tokenUtility = tokenUtility;
     }
 
     public boolean validateAccessToken(Integer userId, String jti, String validatingToken){
@@ -37,5 +40,13 @@ public class TokenHelper {
         }
 
         return true;
+    }
+
+    public void validateInternalToken(String token){
+        var claims = tokenUtility.validateInternalToken(token);
+
+        if (!tokenUtility.isValidService(claims)){
+            throw new ServiceException(INVALID_TOKEN);
+        }
     }
 }

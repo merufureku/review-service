@@ -39,6 +39,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         var token = authHeader.substring(7);
+
+        // Handle internal endpoints
+        if (request.getRequestURI().startsWith("/api/review-service/internal")) {
+            try {
+                tokenHelper.validateInternalToken(token);
+
+                var authorities = Collections.singletonList(
+                        new SimpleGrantedAuthority("ROLE_INTERNAL")
+                );
+                var authentication = new UsernamePasswordAuthenticationToken(
+                        "internal-service", null, authorities
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
+            }
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             // Validate token
             var claims = tokenUtility.parseToken(token);
