@@ -12,13 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
-public class InternalReviewServiceImpl implements IInternalReviewService {
+public class InternalReviewServiceImpl1 implements IInternalReviewService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ReviewsRepository reviewsRepository;
 
-    public InternalReviewServiceImpl(ReviewsRepository reviewsRepository) {
+    public InternalReviewServiceImpl1(ReviewsRepository reviewsRepository) {
         this.reviewsRepository = reviewsRepository;
     }
 

@@ -25,7 +25,7 @@ import static com.merufureku.aromatica.review_service.enums.CustomStatusEnums.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ReviewServiceImpl implements IReviewService {
+public class ReviewServiceImpl1 implements IReviewService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -35,7 +35,7 @@ public class ReviewServiceImpl implements IReviewService {
     private final SpecificationHelper specificationHelper;
     private final ReviewHelper reviewHelper;
 
-    public ReviewServiceImpl(FragrancesRepository fragrancesRepository, ReviewsRepository reviewsRepository, UsersRepository usersRepository, SpecificationHelper specificationHelper, ReviewHelper reviewHelper) {
+    public ReviewServiceImpl1(FragrancesRepository fragrancesRepository, ReviewsRepository reviewsRepository, UsersRepository usersRepository, SpecificationHelper specificationHelper, ReviewHelper reviewHelper) {
         this.fragrancesRepository = fragrancesRepository;
         this.reviewsRepository = reviewsRepository;
         this.usersRepository = usersRepository;

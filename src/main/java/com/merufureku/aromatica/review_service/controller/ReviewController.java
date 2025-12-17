@@ -3,7 +3,7 @@ package com.merufureku.aromatica.review_service.controller;
 import com.merufureku.aromatica.review_service.dto.params.BaseParam;
 import com.merufureku.aromatica.review_service.dto.params.PostReviewParam;
 import com.merufureku.aromatica.review_service.dto.responses.*;
-import com.merufureku.aromatica.review_service.services.interfaces.IReviewService;
+import com.merufureku.aromatica.review_service.services.factory.ReviewServiceFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +15,10 @@ import java.util.List;
 @RestController
 public class ReviewController {
 
-    private final IReviewService reviewService;
+    private final ReviewServiceFactory reviewServiceFactory;
 
-    public ReviewController(IReviewService reviewService) {
-        this.reviewService = reviewService;
+    public ReviewController(ReviewServiceFactory reviewServiceFactory) {
+        this.reviewServiceFactory = reviewServiceFactory;
     }
 
     @GetMapping("/reviews/public/{fragranceId}")
@@ -30,7 +30,8 @@ public class ReviewController {
                                                                                  Pageable pageable) {
 
         var baseParam = new BaseParam(version, correlationId);
-        var response = reviewService.getReviewsByFragranceId(fragranceId, ratings, pageable, baseParam);
+        var response = reviewServiceFactory.getService(version)
+                .getReviewsByFragranceId(fragranceId, ratings, pageable, baseParam);
 
         return ResponseEntity.ok(response);
     }
@@ -44,7 +45,8 @@ public class ReviewController {
                                                                         Pageable pageable) {
 
         var baseParam = new BaseParam(version, correlationId);
-        var response = reviewService.getMyReviews(getUserId(), fragranceId, ratings, pageable, baseParam);
+        var response = reviewServiceFactory.getService(version)
+                .getMyReviews(getUserId(), fragranceId, ratings, pageable, baseParam);
 
         return ResponseEntity.ok(response);
     }
@@ -57,7 +59,8 @@ public class ReviewController {
                                                                          @RequestParam(required = false, defaultValue = "") String correlationId) {
 
         var baseParam = new BaseParam(version, correlationId);
-        var response = reviewService.postReview(getUserId(), fragranceId, param, baseParam);
+        var response = reviewServiceFactory.getService(version)
+                .postReview(getUserId(), fragranceId, param, baseParam);
 
         return ResponseEntity.ok(response);
     }
@@ -71,7 +74,8 @@ public class ReviewController {
                                                                            @RequestParam(required = false, defaultValue = "") String correlationId) {
 
         var baseParam = new BaseParam(version, correlationId);
-        var response = reviewService.updateReview(getUserId(), reviewId, fragranceId, param, baseParam);
+        var response = reviewServiceFactory.getService(version)
+                .updateReview(getUserId(), reviewId, fragranceId, param, baseParam);
 
         return ResponseEntity.ok(response);
     }
@@ -84,7 +88,8 @@ public class ReviewController {
                                              @RequestParam(required = false, defaultValue = "") String correlationId) {
 
         var baseParam = new BaseParam(version, correlationId);
-        reviewService.deleteReview(getUserId(), reviewId, fragranceId, baseParam);
+        reviewServiceFactory.getService(version)
+                .deleteReview(getUserId(), reviewId, fragranceId, baseParam);
 
         return ResponseEntity.noContent().build();
     }
