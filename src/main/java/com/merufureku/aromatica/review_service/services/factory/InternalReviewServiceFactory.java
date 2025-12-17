@@ -24,7 +24,7 @@ public class InternalReviewServiceFactory {
         return switch (version) {
             case 0 -> internalReviewServiceImpl0;
             case 1 -> internalReviewServiceImpl1;
-            default -> throw new IllegalArgumentException("Unsupported recommendation service version: " + version);
+            default -> throw new IllegalArgumentException("Unsupported service version: " + version);
         };
     }
 }
