@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import static com.merufureku.aromatica.review_service.constants.CollectionConstants.ACCESS_TOKEN;
 import static com.merufureku.aromatica.review_service.enums.CustomStatusEnums.INVALID_TOKEN;
-import static com.merufureku.aromatica.review_service.utilities.DateUtility.isDateExpired;
+import static com.merufureku.aromatica.review_service.utilities.DateUtility.isAccessTokenExpired;
 
 @Component
 public class TokenHelper {
@@ -34,7 +34,7 @@ public class TokenHelper {
             logger.info("Invalid token found!");
             throw new ServiceException(INVALID_TOKEN);
         }
-        if (isDateExpired(originalToken.getExpirationDt())){
+        if (isAccessTokenExpired(originalToken.getExpirationDt())){
             logger.info("Token expired!");
             throw new ServiceException(INVALID_TOKEN);
         }
