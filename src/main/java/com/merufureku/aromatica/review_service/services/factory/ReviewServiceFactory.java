@@ -20,7 +20,7 @@ public class ReviewServiceFactory {
         return switch (version) {
             case 0 -> reviewServiceImpl0;
             case 1 -> reviewServiceImpl1;
-            default -> throw new IllegalArgumentException("Unsupported recommendation service version: " + version);
+            default -> throw new IllegalArgumentException("Unsupported service version: " + version);
         };
     }
 }
