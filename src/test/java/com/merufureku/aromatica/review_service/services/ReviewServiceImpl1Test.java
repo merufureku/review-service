@@ -1,6 +1,7 @@
 package com.merufureku.aromatica.review_service.services;
 
 import com.merufureku.aromatica.review_service.dao.entity.Reviews;
+import com.merufureku.aromatica.review_service.dao.entity.Users;
 import com.merufureku.aromatica.review_service.dao.repository.FragrancesRepository;
 import com.merufureku.aromatica.review_service.dao.repository.ReviewsRepository;
 import com.merufureku.aromatica.review_service.dao.repository.UsersRepository;
@@ -11,7 +12,7 @@ import com.merufureku.aromatica.review_service.enums.CustomStatusEnums;
 import com.merufureku.aromatica.review_service.exceptions.ServiceException;
 import com.merufureku.aromatica.review_service.helper.ReviewHelper;
 import com.merufureku.aromatica.review_service.helper.SpecificationHelper;
-import com.merufureku.aromatica.review_service.services.impl.ReviewServiceImpl;
+import com.merufureku.aromatica.review_service.services.impl.ReviewServiceImpl1;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,10 +35,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ReviewServiceImplTest {
+public class ReviewServiceImpl1Test {
 
     @InjectMocks
-    private ReviewServiceImpl reviewServiceImpl;
+    private ReviewServiceImpl1 reviewServiceImpl1;
 
     @Mock
     private FragrancesRepository fragrancesRepository;
@@ -69,6 +70,10 @@ public class ReviewServiceImplTest {
         pageable = PageRequest.of(0, 10);
 
         postReviewParam = new PostReviewParam(5, "Great fragrance");
+        Users users = Users.builder()
+                .id(userId)
+                .username("username")
+                .build();
 
         review = Reviews.builder()
                 .id(reviewId)
@@ -78,6 +83,7 @@ public class ReviewServiceImplTest {
                 .comment("Great fragrance")
                 .createdAt(LocalDate.now())
                 .updatedAt(LocalDate.now())
+                .user(users)
                 .build();
     }
 
@@ -92,7 +98,7 @@ public class ReviewServiceImplTest {
         when(reviewsRepository.findAll(any(Specification.class), eq(pageable)))
                 .thenReturn(reviewPage);
 
-        BaseResponse<ReviewsResponse> response = reviewServiceImpl
+        BaseResponse<ReviewsResponse> response = reviewServiceImpl1
                 .getReviewsByFragranceId(fragranceId, null, pageable, baseParam);
 
         assertNotNull(response);
@@ -110,7 +116,7 @@ public class ReviewServiceImplTest {
         when(fragrancesRepository.existsById(fragranceId)).thenReturn(false);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.getReviewsByFragranceId(fragranceId, null, pageable, baseParam));
+                reviewServiceImpl1.getReviewsByFragranceId(fragranceId, null, pageable, baseParam));
 
         assertEquals(CustomStatusEnums.FRAGRANCE_NOT_FOUND, exception.getCustomStatusEnums());
         verify(reviewsRepository, never()).findAll(any(Specification.class), eq(pageable));
@@ -128,7 +134,7 @@ public class ReviewServiceImplTest {
         when(reviewsRepository.findAll(any(Specification.class), eq(pageable)))
                 .thenReturn(reviewPage);
 
-        BaseResponse<MyReviewsResponse> response = reviewServiceImpl
+        BaseResponse<MyReviewsResponse> response = reviewServiceImpl1
                 .getMyReviews(userId, fragranceId, null, pageable, baseParam);
 
         assertNotNull(response);
@@ -146,7 +152,7 @@ public class ReviewServiceImplTest {
         when(usersRepository.existsById(userId)).thenReturn(false);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.getMyReviews(userId, fragranceId, null, pageable, baseParam));
+                reviewServiceImpl1.getMyReviews(userId, fragranceId, null, pageable, baseParam));
 
         assertEquals(CustomStatusEnums.NO_USER_FOUND, exception.getCustomStatusEnums());
         verify(fragrancesRepository, never()).existsById(fragranceId);
@@ -159,7 +165,7 @@ public class ReviewServiceImplTest {
         when(fragrancesRepository.existsById(fragranceId)).thenReturn(false);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.getMyReviews(userId, fragranceId, null, pageable, baseParam));
+                reviewServiceImpl1.getMyReviews(userId, fragranceId, null, pageable, baseParam));
 
         assertEquals(CustomStatusEnums.FRAGRANCE_NOT_FOUND, exception.getCustomStatusEnums());
         verify(reviewsRepository, never()).findAll(any(Specification.class), eq(pageable));
@@ -172,7 +178,7 @@ public class ReviewServiceImplTest {
         when(reviewsRepository.existsByUserIdAndFragranceId(userId, fragranceId)).thenReturn(false);
         when(reviewsRepository.save(any(Reviews.class))).thenReturn(review);
 
-        BaseResponse<PostReviewResponse> response = reviewServiceImpl
+        BaseResponse<PostReviewResponse> response = reviewServiceImpl1
                 .postReview(userId, fragranceId, postReviewParam, baseParam);
 
         assertNotNull(response);
@@ -189,7 +195,7 @@ public class ReviewServiceImplTest {
         when(usersRepository.existsById(userId)).thenReturn(false);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.postReview(userId, fragranceId, postReviewParam, baseParam));
+                reviewServiceImpl1.postReview(userId, fragranceId, postReviewParam, baseParam));
 
         assertEquals(CustomStatusEnums.NO_USER_FOUND, exception.getCustomStatusEnums());
         verify(fragrancesRepository, never()).existsById(fragranceId);
@@ -203,7 +209,7 @@ public class ReviewServiceImplTest {
         when(fragrancesRepository.existsById(fragranceId)).thenReturn(false);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.postReview(userId, fragranceId, postReviewParam, baseParam));
+                reviewServiceImpl1.postReview(userId, fragranceId, postReviewParam, baseParam));
 
         assertEquals(CustomStatusEnums.FRAGRANCE_NOT_FOUND, exception.getCustomStatusEnums());
         verify(reviewsRepository, never()).existsByUserIdAndFragranceId(userId, fragranceId);
@@ -217,7 +223,7 @@ public class ReviewServiceImplTest {
         when(reviewsRepository.existsByUserIdAndFragranceId(userId, fragranceId)).thenReturn(true);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.postReview(userId, fragranceId, postReviewParam, baseParam));
+                reviewServiceImpl1.postReview(userId, fragranceId, postReviewParam, baseParam));
 
         assertEquals(CustomStatusEnums.REVIEW_ALREADY_EXISTS, exception.getCustomStatusEnums());
         verify(reviewsRepository, never()).save(any(Reviews.class));
@@ -243,7 +249,7 @@ public class ReviewServiceImplTest {
         when(reviewHelper.updateReview(review, postReviewParam)).thenReturn(updatedReview);
         when(reviewsRepository.save(updatedReview)).thenReturn(updatedReview);
 
-        BaseResponse<UpdateReviewResponse> response = reviewServiceImpl
+        BaseResponse<UpdateReviewResponse> response = reviewServiceImpl1
                 .updateReview(userId, reviewId, fragranceId, postReviewParam, baseParam);
 
         assertNotNull(response);
@@ -263,7 +269,7 @@ public class ReviewServiceImplTest {
         when(usersRepository.existsById(userId)).thenReturn(false);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.updateReview(userId, reviewId, fragranceId, postReviewParam, baseParam));
+                reviewServiceImpl1.updateReview(userId, reviewId, fragranceId, postReviewParam, baseParam));
 
         assertEquals(CustomStatusEnums.NO_USER_FOUND, exception.getCustomStatusEnums());
         verify(fragrancesRepository, never()).existsById(fragranceId);
@@ -276,7 +282,7 @@ public class ReviewServiceImplTest {
         when(fragrancesRepository.existsById(fragranceId)).thenReturn(false);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.updateReview(userId, reviewId, fragranceId, postReviewParam, baseParam));
+                reviewServiceImpl1.updateReview(userId, reviewId, fragranceId, postReviewParam, baseParam));
 
         assertEquals(CustomStatusEnums.FRAGRANCE_NOT_FOUND, exception.getCustomStatusEnums());
         verify(reviewsRepository, never()).findByIdAndUserIdAndFragranceId(reviewId, userId, fragranceId);
@@ -290,7 +296,7 @@ public class ReviewServiceImplTest {
                 .thenReturn(Optional.empty());
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.updateReview(userId, reviewId, fragranceId, postReviewParam, baseParam));
+                reviewServiceImpl1.updateReview(userId, reviewId, fragranceId, postReviewParam, baseParam));
 
         assertEquals(CustomStatusEnums.REVIEW_NOT_FOUND, exception.getCustomStatusEnums());
         verify(reviewHelper, never()).updateReview(any(), any());
@@ -304,7 +310,7 @@ public class ReviewServiceImplTest {
         when(reviewsRepository.findByIdAndUserIdAndFragranceId(reviewId, userId, fragranceId))
                 .thenReturn(Optional.of(review));
 
-        reviewServiceImpl.deleteReview(userId, reviewId, fragranceId, baseParam);
+        reviewServiceImpl1.deleteReview(userId, reviewId, fragranceId, baseParam);
 
         verify(reviewsRepository, times(1)).delete(review);
     }
@@ -314,7 +320,7 @@ public class ReviewServiceImplTest {
         when(usersRepository.existsById(userId)).thenReturn(false);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.deleteReview(userId, reviewId, fragranceId, baseParam));
+                reviewServiceImpl1.deleteReview(userId, reviewId, fragranceId, baseParam));
 
         assertEquals(CustomStatusEnums.NO_USER_FOUND, exception.getCustomStatusEnums());
         verify(fragrancesRepository, never()).existsById(fragranceId);
@@ -328,7 +334,7 @@ public class ReviewServiceImplTest {
         when(fragrancesRepository.existsById(fragranceId)).thenReturn(false);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.deleteReview(userId, reviewId, fragranceId, baseParam));
+                reviewServiceImpl1.deleteReview(userId, reviewId, fragranceId, baseParam));
 
         assertEquals(CustomStatusEnums.FRAGRANCE_NOT_FOUND, exception.getCustomStatusEnums());
         verify(reviewsRepository, never()).findByIdAndUserIdAndFragranceId(reviewId, userId, fragranceId);
@@ -343,7 +349,7 @@ public class ReviewServiceImplTest {
                 .thenReturn(Optional.empty());
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
-                reviewServiceImpl.deleteReview(userId, reviewId, fragranceId, baseParam));
+                reviewServiceImpl1.deleteReview(userId, reviewId, fragranceId, baseParam));
 
         assertEquals(CustomStatusEnums.REVIEW_NOT_FOUND, exception.getCustomStatusEnums());
         verify(reviewsRepository, never()).delete(any(Reviews.class));
