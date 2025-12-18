@@ -41,7 +41,7 @@ public class TokenHelperTest {
                 .token(TOKEN)
                 .jti(JTI)
                 .type(ACCESS_TOKEN)
-                .expirationDt(LocalDateTime.now())
+                .expirationDt(LocalDateTime.now().plusMinutes(6))
                 .build();
 
         when(tokenRepository.findByUserIdAndJtiAndType(anyInt(), anyString(), anyString()))
