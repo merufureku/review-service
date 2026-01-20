@@ -7,6 +7,8 @@ import com.merufureku.aromatica.review_service.services.factory.ReviewServiceFac
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,9 +82,24 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @DeleteMapping("/reviews/{fragranceId}/{reviewId}")
-    @Operation(summary = "Delete review for a fragrance")
+    @Operation(summary = "Delete my review for a fragrance")
     public ResponseEntity<Void> deleteReview(@PathVariable("fragranceId") Long fragranceId,
+                                             @PathVariable("reviewId") Long reviewId,
+                                             @RequestParam(required = false, defaultValue = "1") int version,
+                                             @RequestParam(required = false, defaultValue = "") String correlationId) {
+
+        var baseParam = new BaseParam(version, correlationId);
+        reviewServiceFactory.getService(version)
+                .deleteReview(reviewId, fragranceId, baseParam);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/reviews/me/{fragranceId}/{reviewId}")
+    @Operation(summary = "Delete my review for a fragrance")
+    public ResponseEntity<Void> deleteMyReview(@PathVariable("fragranceId") Long fragranceId,
                                              @PathVariable("reviewId") Long reviewId,
                                              @RequestParam(required = false, defaultValue = "1") int version,
                                              @RequestParam(required = false, defaultValue = "") String correlationId) {

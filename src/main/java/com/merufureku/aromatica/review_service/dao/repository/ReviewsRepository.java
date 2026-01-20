@@ -16,6 +16,8 @@ public interface ReviewsRepository extends JpaRepository<Reviews, Long>, JpaSpec
 
     boolean existsByUserIdAndFragranceId(Integer userId, Long fragranceId);
 
+    Optional<Reviews> findByIdAndFragranceId(Long id, Long fragranceId);
+
     Optional<Reviews> findByIdAndUserIdAndFragranceId(Long id, Integer userId, Long fragranceId);
 
     @Query("SELECT r FROM Reviews r " +

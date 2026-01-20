@@ -305,6 +305,42 @@ public class ReviewServiceImpl1Test {
 
     @Test
     void testDeleteReview_thenSuccess() {
+        when(fragrancesRepository.existsById(fragranceId)).thenReturn(true);
+        when(reviewsRepository.findByIdAndFragranceId(reviewId, fragranceId))
+                .thenReturn(Optional.of(review));
+
+        reviewServiceImpl1.deleteReview(reviewId, fragranceId, baseParam);
+
+        verify(reviewsRepository, times(1)).delete(review);
+    }
+
+    @Test
+    void testDeleteReview_whenFragranceNotFound_thenThrowException() {
+        when(fragrancesRepository.existsById(fragranceId)).thenReturn(false);
+
+        ServiceException exception = assertThrows(ServiceException.class, () ->
+                reviewServiceImpl1.deleteReview(reviewId, fragranceId, baseParam));
+
+        assertEquals(CustomStatusEnums.FRAGRANCE_NOT_FOUND, exception.getCustomStatusEnums());
+        verify(reviewsRepository, never()).findByIdAndFragranceId(reviewId, fragranceId);
+        verify(reviewsRepository, never()).delete(any(Reviews.class));
+    }
+
+    @Test
+    void testDeleteReview_whenReviewNotFound_thenThrowException() {
+        when(fragrancesRepository.existsById(fragranceId)).thenReturn(true);
+        when(reviewsRepository.findByIdAndFragranceId(reviewId, fragranceId))
+                .thenReturn(Optional.empty());
+
+        ServiceException exception = assertThrows(ServiceException.class, () ->
+                reviewServiceImpl1.deleteReview(reviewId, fragranceId, baseParam));
+
+        assertEquals(CustomStatusEnums.REVIEW_NOT_FOUND, exception.getCustomStatusEnums());
+        verify(reviewsRepository, never()).delete(any(Reviews.class));
+    }
+
+    @Test
+    void testDeleteMyReview_thenSuccess() {
         when(usersRepository.existsById(userId)).thenReturn(true);
         when(fragrancesRepository.existsById(fragranceId)).thenReturn(true);
         when(reviewsRepository.findByIdAndUserIdAndFragranceId(reviewId, userId, fragranceId))
@@ -316,7 +352,7 @@ public class ReviewServiceImpl1Test {
     }
 
     @Test
-    void testDeleteReview_whenUserNotFound_thenThrowException() {
+    void testDeleteMyReview_whenUserNotFound_thenThrowException() {
         when(usersRepository.existsById(userId)).thenReturn(false);
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
@@ -329,7 +365,7 @@ public class ReviewServiceImpl1Test {
     }
 
     @Test
-    void testDeleteReview_whenFragranceNotFound_thenThrowException() {
+    void testDeleteMyReview_whenFragranceNotFound_thenThrowException() {
         when(usersRepository.existsById(userId)).thenReturn(true);
         when(fragrancesRepository.existsById(fragranceId)).thenReturn(false);
 
@@ -342,7 +378,7 @@ public class ReviewServiceImpl1Test {
     }
 
     @Test
-    void testDeleteReview_whenReviewNotFound_thenThrowException() {
+    void testDeleteMyReview_whenReviewNotFound_thenThrowException() {
         when(usersRepository.existsById(userId)).thenReturn(true);
         when(fragrancesRepository.existsById(fragranceId)).thenReturn(true);
         when(reviewsRepository.findByIdAndUserIdAndFragranceId(reviewId, userId, fragranceId))

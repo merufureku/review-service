@@ -32,6 +32,11 @@ public class ReviewServiceImpl0 implements IReviewService {
     }
 
     @Override
+    public void deleteReview(Long reviewID, Long fragranceId, BaseParam baseParam) {
+
+    }
+
+    @Override
     public void deleteReview(Integer userId, Long reviewID, Long fragranceId, BaseParam baseParam) {
 
     }
