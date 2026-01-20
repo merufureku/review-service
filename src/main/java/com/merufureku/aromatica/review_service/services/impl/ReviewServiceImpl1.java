@@ -172,6 +172,23 @@ public class ReviewServiceImpl1 implements IReviewService {
     }
 
     @Override
+    public void deleteReview(Long reviewID, Long fragranceId, BaseParam baseParam) {
+
+        logger.info("Deleting review ID: {} for fragrance ID: {}", reviewID, fragranceId);
+
+        if (!fragrancesRepository.existsById(fragranceId)){
+            throw new ServiceException(FRAGRANCE_NOT_FOUND);
+        }
+
+        var review = reviewsRepository.findByIdAndFragranceId(reviewID, fragranceId)
+                .orElseThrow(() -> new ServiceException(REVIEW_NOT_FOUND));
+
+        reviewsRepository.delete(review);
+
+        logger.info("Review ID: {} deleted successfully", reviewID);
+    }
+
+    @Override
     public void deleteReview(Integer userId, Long reviewID, Long fragranceId, BaseParam baseParam) {
 
         logger.info("User ID: {} deleting review ID: {} for fragrance ID: {}", userId, reviewID, fragranceId);

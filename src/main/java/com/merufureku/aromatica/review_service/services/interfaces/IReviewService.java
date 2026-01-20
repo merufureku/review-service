@@ -17,5 +17,7 @@ public interface IReviewService {
 
     BaseResponse<UpdateReviewResponse> updateReview(Integer userId, Long reviewID, Long fragranceId, PostReviewParam param, BaseParam baseParam);
 
+    void deleteReview(Long reviewID, Long fragranceId, BaseParam baseParam);
+
     void deleteReview(Integer userId, Long reviewID, Long fragranceId, BaseParam baseParam);
 }
