@@ -153,7 +153,7 @@ src/main/java/.../review_service/
 
 ## Related Services
 
-- [Auth Service](../auth-service) - Authentication
-- [Fragrance Service](../fragrance-service) - Perfume catalog
-- [Collection Service](../collection-service) - User collections
-- [Recommendation Service](../recommendation-service) - Uses reviews for CF algorithm
+- [Auth Service](https://github.com/merufureku/aromatica-auth-service) - Authentication
+- [Fragrance Service](https://github.com/merufureku/aromatica-fragrance-service) - Perfume catalog
+- [Collection Service](https://github.com/merufureku/aromatica-collection-service) - User collections
+- [Recommendation Service](https://github.com/merufureku/aromatica-recommendation-service) - Uses reviews for CF algorithm
